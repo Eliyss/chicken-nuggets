@@ -25,6 +25,7 @@ def nuggets(a):                             # a is a list or tuple
     
     mod_nums = [0 for x in range(mod)]      # mod_nums store the n value for each number that is congruent to y mod x represented by y + n * x at index y
     mod_table = []                          # mod_table store said y values for each n at index n
+    max_values = []
 
     for i in range(n):                      # loop goes through all coin values and stores the lowest n value for each y value, if no y value found, 0 is stored instead
         current  = a[i] % mod               
@@ -47,11 +48,14 @@ def nuggets(a):                             # a is a list or tuple
     # all values for n = 1 have been found, search for n = 2 values
     # new y values obtained by (y1 + y2) % x, for y1, y2 values in n = 1, 
     # store new  y values for each n at index n, if index n does not exist, create by appending
-    # remove y value from array index 0
-    # increment count, or minimun n value
-    # continue until no values are left in 0, or when all values of y have been found
-    count = 2                               
-    while (mod_table[0]):                   # 
+    # remove y value from array index 0 and stores n value in mod_nums
+    # if created nugget has smaller n than previously formed nuggets, replace n values in mod_nums and store acordingly in mod_table
+    # adjust max_mod accordingly  **note you can add code to prune off extra indexes in mod_table, chose not to because they might be created again
+    # increment count/minimun n value of future nuggets
+    # continue until no values are left in 0 and all values of y are optimized
+
+    count = 2
+    while (mod_table[0] or count < max_mod):
         for i in range(1, int(count/2) + 1):
             for j in range(len(mod_table[i])):
                 for k in range(len(mod_table[count-i])):
@@ -64,11 +68,15 @@ def nuggets(a):                             # a is a list or tuple
                             max_mod += 1
                         mod_table[count + over_mod].append(new_nugget)
                         mod_table[0].remove(new_nugget)
+                        mod_nums[new_nugget] = count + over_mod
+                    
+                    if (mod_nums[new_nugget] > count + over_mod):
+                        mod_table[count + over_mod].append(new_nugget)
+                        mod_table[mod_nums[new_nugget]].remove(new_nugget)
+                        mod_nums[new_nugget] = count + over_mod
+                        max_mod = max(mod_nums)
         count += 1
-
+    
     final = max(mod_table[max_mod]) + max_mod*mod - mod     # smallest value congruent to y mod x is given by y + max_mod * x
                                                             # largest unobtainable value is thus y + max_mod * x - x
     return final    
-
-a = [3, 4, 17]
-print(nuggets(a))
